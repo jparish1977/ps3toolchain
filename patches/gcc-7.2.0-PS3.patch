@@ -1,5 +1,17 @@
+diff --git a/Makefile.in b/Makefile.in
+index b824e0a0c..5bf0da25e 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -25734,7 +25734,6 @@ check-libiberty:
+ .PHONY: install-libiberty maybe-install-libiberty
+ maybe-install-libiberty:
+ @if libiberty
+-maybe-install-libiberty: install-libiberty
+ 
+ install-libiberty: installdirs
+ 	@: $(MAKE); $(unstage)
 diff --git a/gcc/config.gcc b/gcc/config.gcc
-index a9196cd..55b4271 100644
+index a9196cd26..f2a94403d 100644
 --- a/gcc/config.gcc
 +++ b/gcc/config.gcc
 @@ -2330,6 +2330,15 @@ pdp11-*-*)
@@ -7,7 +19,7 @@ index a9196cd..55b4271 100644
  #	extra_headers=
  #	;;
 +powerpc64-ps3-elf)
-+	tm_file="${tm_file} dbxelf.h elfos.h usegas.h freebsd-spec.h rs6000/sysv4.h rs6000/default64.h"
++	tm_file="${tm_file} dbxelf.h elfos.h usegas.h freebsd-spec.h newlib-stdint.h rs6000/sysv4.h rs6000/default64.h"
 +	tm_file="rs6000/biarch64.h ${tm_file} rs6000/cell64lv2.h"
 +	if test x${enable_secureplt} = xyes; then
 +		tm_file="rs6000/secureplt.h ${tm_file}"
@@ -20,7 +32,7 @@ index a9196cd..55b4271 100644
  	case ${target} in
 diff --git a/gcc/config/rs6000/cell64lv2.h b/gcc/config/rs6000/cell64lv2.h
 new file mode 100644
-index 0000000..589a675
+index 000000000..86da868b5
 --- /dev/null
 +++ b/gcc/config/rs6000/cell64lv2.h
 @@ -0,0 +1,587 @@
@@ -107,7 +119,7 @@ index 0000000..589a675
 +  (rs6000_isa_flags & rs6000_isa_flags_explicit & OPTION_MASK_RELOCATABLE)
 +
 +#undef	RS6000_ABI_NAME
-+#define	RS6000_ABI_NAME "aixdesc"
++#define	RS6000_ABI_NAME "linux"
 +
 +#define INVALID_64BIT "-m%s not supported in this configuration"
 +#define INVALID_32BIT INVALID_64BIT
@@ -169,7 +181,7 @@ index 0000000..589a675
 +	  else							\
 +	    {							\
 +	      if (!global_options_set.x_rs6000_current_cmodel)	\
-+		SET_CMODEL (CMODEL_MEDIUM);			\
++		SET_CMODEL (CMODEL_SMALL);			\
 +	      if (rs6000_current_cmodel != CMODEL_SMALL)	\
 +		{						\
 +		  if (!global_options_set.x_TARGET_NO_FP_IN_TOC) \
@@ -612,7 +624,7 @@ index 0000000..589a675
 +#undef	TARGET_FLOAT128_ENABLE_TYPE
 +#define TARGET_FLOAT128_ENABLE_TYPE 1
 diff --git a/gcc/config/rs6000/rs6000.c b/gcc/config/rs6000/rs6000.c
-index db9136f..3a29d47 100644
+index db9136f26..3a29d4723 100644
 --- a/gcc/config/rs6000/rs6000.c
 +++ b/gcc/config/rs6000/rs6000.c
 @@ -1349,6 +1349,12 @@ rtl_opt_pass *make_pass_analyze_swaps (gcc::context*);
@@ -649,8 +661,46 @@ index db9136f..3a29d47 100644
  struct gcc_target targetm = TARGET_INITIALIZER;
  
  #include "gt-rs6000.h"
+diff --git a/gcc/configure b/gcc/configure
+index 50ccc2a0f..6b503988a 100755
+--- a/gcc/configure
++++ b/gcc/configure
+@@ -28598,12 +28598,12 @@ $as_echo "#define HAVE_LD_PPC_GNU_ATTR_LONG_DOUBLE 1" >>confdefs.h
+ esac
+ 
+ case "$target:$tm_file" in
+-  powerpc64-*-freebsd* | powerpc64*-*-linux* | powerpc*-*-linux*rs6000/biarch64.h*)
++  powerpc64-*-freebsd* | powerpc64*-*-linux* | powerpc64-ps3-elf* | powerpc*-*-linux*rs6000/biarch64.h*)
+   case "$target" in
+      *le-*-linux*)
+      emul_name="-melf64lppc"
+       ;;
+-     *-*-linux*)
++     *-*-linux* | *-ps3-elf*)
+      emul_name="-melf64ppc"
+       ;;
+      *-*-freebsd*)
+diff --git a/gcc/configure.ac b/gcc/configure.ac
+index 1d5a9d7c6..e568cb3f8 100644
+--- a/gcc/configure.ac
++++ b/gcc/configure.ac
+@@ -5462,12 +5462,12 @@ EOF
+ esac
+ 
+ case "$target:$tm_file" in
+-  powerpc64-*-freebsd* | powerpc64*-*-linux* | powerpc*-*-linux*rs6000/biarch64.h*)
++  powerpc64-*-freebsd* | powerpc64*-*-linux* | powerpc64-ps3-elf* | powerpc*-*-linux*rs6000/biarch64.h*)
+   case "$target" in
+      *le-*-linux*)
+      emul_name="-melf64lppc"
+       ;;
+-     *-*-linux*)
++     *-*-linux* | *-ps3-elf*)
+      emul_name="-melf64ppc"
+       ;;
+      *-*-freebsd*)
 diff --git a/libgcc/config.host b/libgcc/config.host
-index bedcf10..8d6c8fe 100644
+index bedcf1017..8d6c8feff 100644
 --- a/libgcc/config.host
 +++ b/libgcc/config.host
 @@ -1043,6 +1043,8 @@ powerpc-*-rtems*)

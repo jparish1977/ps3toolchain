@@ -46,6 +46,7 @@ cd ${GCC}/build-spu
 ## Configure the build.
 ../configure --prefix="$PS3DEV/spu" --target="spu" \
     --disable-dependency-tracking \
+    --disable-libcc1 \
     --disable-libssp \
     --disable-multilib \
     --disable-nls \
@@ -57,4 +58,6 @@ cd ${GCC}/build-spu
     --with-newlib
 
 ## Compile and install.
-${MAKE:-make} -j 4 all && ${MAKE:-make} install
+PROCS="$(nproc --all 2>&1)" || ret=$?
+if [ ! -z $ret ]; then PROCS=4; fi
+${MAKE:-make} -j $PROCS all && ${MAKE:-make} install

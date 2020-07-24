@@ -6,11 +6,11 @@ BINUTILS="binutils-2.22"
 if [ ! -d ${BINUTILS} ]; then
 
   ## Download the source code.
-  if [ ! -f ${BINUTILS}.tar.bz ]; then wget --continue https://ftp.gnu.org/gnu/binutils/${BINUTILS}.tar.bz2; fi
+  if [ ! -f ${BINUTILS}.tar.bz2 ]; then wget --continue https://ftp.gnu.org/gnu/binutils/${BINUTILS}.tar.bz2; fi
 
   ## Download an up-to-date config.guess and config.sub
-  if [ ! -f config.guess ]; then wget --continue http://git.savannah.gnu.org/cgit/config.git/plain/config.guess; fi
-  if [ ! -f config.sub ]; then wget --continue http://git.savannah.gnu.org/cgit/config.git/plain/config.sub; fi
+  if [ ! -f config.guess ]; then wget --continue https://git.savannah.gnu.org/cgit/config.git/plain/config.guess; fi
+  if [ ! -f config.sub ]; then wget --continue https://git.savannah.gnu.org/cgit/config.git/plain/config.sub; fi
 
   ## Unpack the source code.
   tar xfvj ${BINUTILS}.tar.bz2
@@ -46,4 +46,6 @@ cd ${BINUTILS}/build-ppu
     --with-gnu-ld
 
 ## Compile and install.
-${MAKE:-make} -j 4 && ${MAKE:-make} install
+PROCS="$(nproc --all 2>&1)" || ret=$?
+if [ ! -z $ret ]; then PROCS=4; fi
+${MAKE:-make} -j $PROCS && ${MAKE:-make} libdir=host-libs/lib install

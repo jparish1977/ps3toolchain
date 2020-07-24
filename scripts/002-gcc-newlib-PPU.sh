@@ -46,6 +46,7 @@ cd ${GCC}/build-ppu
 ## Configure the build.
 ../configure --prefix="$PS3DEV/ppu" --target="powerpc64-ps3-elf" \
     --disable-dependency-tracking \
+    --disable-libcc1 \
     --disable-libstdcxx-pch \
     --disable-multilib \
     --disable-nls \
@@ -60,4 +61,6 @@ cd ${GCC}/build-ppu
     --with-system-zlib
 
 ## Compile and install.
-${MAKE:-make} -j 4 all && ${MAKE:-make} install
+PROCS="$(nproc --all 2>&1)" || ret=$?
+if [ ! -z $ret ]; then PROCS=4; fi
+${MAKE:-make} -j $PROCS all && ${MAKE:-make} install
